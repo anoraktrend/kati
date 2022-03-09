@@ -20,6 +20,6 @@
 #include "dep.h"
 class Evaluator;
 
-void Exec(const std::vector<NamedDepNode>& roots, Evaluator* ev);
+bool Exec(const std::vector<NamedDepNode>& roots, Evaluator* ev, bool ignore_failure = false);
 
 #endif  // EXEC_H_
