@@ -192,13 +192,10 @@ void Flags::Parse(int argc, char** argv) {
     } else if (ParseCommandLineOptionWithArg("--writable", argv, &i,
                                              &writable_str)) {
       writable.push_back(writable_str);
-<<<<<<< HEAD:src/flags.cc
     } else if (ParseCommandLineOptionWithArg("--default_pool", argv, &i,
                                              &default_pool)) {
-=======
     } else if (!strncmp(arg, "--include-dir=", 14)) {
       include_dirs.push_back(string(&arg[14]));
->>>>>>> 134e761 (Add Ionut's --include-dir and -C option support):flags.cc
     } else if (arg[0] == '-') {
       ERROR("Unknown flag: %s", arg);
     } else {

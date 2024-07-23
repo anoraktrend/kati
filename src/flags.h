@@ -74,19 +74,16 @@ struct Flags {
   int num_cpus;
   int num_jobs;
   int remote_num_jobs;
-<<<<<<< HEAD:src/flags.h
   std::vector<const char*> subkati_args;
   std::vector<Symbol> targets;
   std::vector<std::string_view> cl_vars;
   std::vector<std::string> writable;
   std::vector<Pattern> traced_variables_pattern;
-=======
   vector<const char*> subkati_args;
   vector<Symbol> targets;
   vector<StringPiece> cl_vars;
   vector<string> writable;
   vector<string> include_dirs;
->>>>>>> 134e761 (Add Ionut's --include-dir and -C option support):flags.h
 
   void Parse(int argc, char** argv);
 };
