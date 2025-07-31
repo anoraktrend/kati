@@ -39,6 +39,10 @@ int RunCommand(const std::string& shell,
                RedirectStderr redirect_stderr,
                std::string* out);
 
+int RunSystem(const std::string& shell,
+              const std::string& shellflag,
+              const std::string& cmd);
+
 std::string GetExecutablePath();
 
 using GlobMap = std::unordered_map<std::string, std::vector<std::string>>;
