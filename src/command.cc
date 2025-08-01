@@ -162,7 +162,7 @@ void AutoQuestionVar::Eval(Evaluator* ev, std::string* s) const {
   } else {
     WordWriter ww(s);
     double target_age = GetTimestamp(CurrentDepNode(ev)->output.str());
-    for (Symbol ai : ce_->current_dep_node()->actual_inputs) {
+    for (Symbol ai : CurrentDepNode(ev)->actual_inputs) {
       if (seen.insert(ai.str()).second && GetTimestamp(ai.str()) > target_age) {
         ww.Write(ai.str());
       }
