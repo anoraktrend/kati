@@ -708,7 +708,7 @@ class DepBuilder {
     std::vector<std::unique_ptr<ScopedVar>> sv;
     ScopedFrame frame(ev_->Enter(FrameType::DEPENDENCY, output.str(), n->loc));
 
-    if (vars) {
+    auto insert_vars = [&](Vars* vars) {
       for (const auto& p : *vars) {
         Symbol name = p.first;
         Var* var = p.second;
@@ -745,6 +745,49 @@ class DepBuilder {
           sv.emplace_back(new ScopedVar(cur_rule_vars_.get(), name, new_var));
         }
       }
+    };
+
+    std::vector<std::pair<Symbol, Vars*>> ordered_pattern_rules;
+    for (const auto& vars : ev_->rule_vars()) {
+      Pattern pat(vars.first.str());
+      if (pat.Match(output.str())) {
+        ordered_pattern_rules.push_back(vars);
+      }
+    };
+
+    // GNU make seems to load target specific variables like this
+    // (in increasing order of precence):
+    // 1. Load inherited variables.
+    // 2. Load variables from generic pattern-specific rules (most generic being first).
+    // 3. Load variables from pattern-specific rules with a stem (most generic being first).
+    // 4. Load variables from matching explicit rules.
+    if (vars) {
+      insert_vars(vars);
+    }
+
+    auto sort_rule = [](const std::pair<Symbol, Vars*>& lhs, const std::pair<Symbol, Vars*>& rhs) {
+      // Exact matches
+      if (lhs.first.str().find("%") == std::string::npos)
+        return true;
+      if (rhs.first.str().find("%") == std::string::npos)
+        return false;
+      // Pattern rules with a predicate, in decreasing order of specificity.
+      auto lhs_last_slash = lhs.first.str().find_last_of("/");
+      auto rhs_last_slash = rhs.first.str().find_last_of("/");
+      if (lhs_last_slash != std::string::npos && rhs_last_slash == std::string::npos)
+        return true;
+      if (lhs_last_slash == std::string::npos && rhs_last_slash != std::string::npos)
+        return false;
+      if (lhs_last_slash != std::string::npos && rhs_last_slash != std::string::npos)
+        return lhs_last_slash > rhs_last_slash;
+      // Pattern rules without a predicate, in decreasing order of specificity.
+      return lhs.first.str().length() > rhs.first.str().length();
+    };
+
+    std::sort(ordered_pattern_rules.begin(), ordered_pattern_rules.end(), sort_rule);
+
+    for (auto iter = ordered_pattern_rules.rbegin(); iter != ordered_pattern_rules.rend(); ++iter) {
+      insert_vars(iter->second);
     }
 
     if (g_flags.warn_phony_looks_real && n->is_phony &&
