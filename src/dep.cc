@@ -947,12 +947,29 @@ class DepBuilder {
 
     n->has_rule = true;
     n->is_default_target = first_rule_ == output;
+
+    auto may_insert_var = [&output, &pattern_rule](Var* var) -> bool {
+      if (!var->Private())
+        return true;
+      if (var->Private() == output.val())
+        return true;
+      if (pattern_rule) {
+        for (auto& pattern : pattern_rule->output_patterns) {
+          Pattern pat(pattern.str());
+          if (pat.Match(output.str()))
+            return true;
+        }
+      }
+      return false;
+    };
+
     if (cur_rule_vars_->empty()) {
       n->rule_vars = NULL;
     } else {
       n->rule_vars = new Vars;
       for (auto p : *cur_rule_vars_) {
-        n->rule_vars->insert(p);
+        if (may_insert_var(p.second))
+          n->rule_vars->insert(p);
       }
     }
 

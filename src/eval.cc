@@ -423,8 +423,9 @@ void Evaluator::EvalRuleSpecificAssign(const std::vector<Symbol>& targets,
   std::string_view var_name;
   std::string_view rhs_string;
   AssignOp assign_op;
+  bool is_private;
   ParseAssignStatement(after_targets, separator_pos, &var_name, &rhs_string,
-                       &assign_op);
+                       &assign_op, &is_private);
   Symbol var_sym = Intern(var_name);
   bool is_final = (stmt->sep == RuleStmt::SEP_FINALEQ);
   for (Symbol target : targets) {
@@ -463,6 +464,10 @@ void Evaluator::EvalRuleSpecificAssign(const std::vector<Symbol>& targets,
       }
       if (is_final) {
         rhs_var->SetReadOnly();
+      }
+      if (is_private) {
+        CHECK(target.IsValid());
+        rhs_var->SetPrivate(target.val());
       }
     }
     current_scope_ = NULL;
@@ -698,7 +703,8 @@ void Evaluator::EvalExport(const ExportStmt* stmt) {
     } else {
       std::string_view rhs;
       AssignOp op;
-      ParseAssignStatement(tok, equal_index, &lhs, &rhs, &op);
+      bool is_private;
+      ParseAssignStatement(tok, equal_index, &lhs, &rhs, &op, &is_private);
     }
     Symbol sym = Intern(lhs);
     exports_[sym] = stmt->is_export;

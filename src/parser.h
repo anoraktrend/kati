@@ -33,7 +33,8 @@ void ParseAssignStatement(std::string_view line,
                           size_t sep,
                           std::string_view* lhs,
                           std::string_view* rhs,
-                          AssignOp* op);
+                          AssignOp* op,
+                          bool* is_private);
 
 const std::vector<ParseErrorStmt*>& GetParseErrors();
 

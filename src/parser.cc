@@ -213,7 +213,8 @@ class Parser {
     std::string_view lhs;
     std::string_view rhs;
     AssignOp op;
-    ParseAssignStatement(line, separator_pos, &lhs, &rhs, &op);
+    bool is_private;
+    ParseAssignStatement(line, separator_pos, &lhs, &rhs, &op, &is_private);
 
     // If rhs starts with '$=', this is 'final assignment',
     // e.g., a combination of the assignment and
@@ -589,7 +590,8 @@ void ParseAssignStatement(std::string_view line,
                           size_t sep,
                           std::string_view* lhs,
                           std::string_view* rhs,
-                          AssignOp* op) {
+                          AssignOp* op,
+                          bool* is_private) {
   CHECK(sep != 0);
   *op = AssignOp::EQ;
   size_t lhs_end = sep;
@@ -607,7 +609,13 @@ void ParseAssignStatement(std::string_view line,
       *op = AssignOp::QUESTION_EQ;
       break;
   }
-  *lhs = TrimSpace(line.substr(0, lhs_end));
+  std::string_view lhs_work = TrimSpace(line.substr(0, lhs_end));
+  bool private_var = HasPrefix(lhs_work, "private ");
+  *is_private = private_var;
+  if (private_var)
+    *lhs = TrimLeftSpace(TrimPrefix(lhs_work, "private "));
+  else
+    *lhs = lhs_work;
   *rhs = TrimLeftSpace(line.substr(std::min(sep + 1, line.size())));
 }
 
