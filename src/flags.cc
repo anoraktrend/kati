@@ -105,6 +105,8 @@ void Flags::Parse(int argc, char** argv) {
       detect_depfiles = true;
     } else if (!strcmp(arg, "--color_warnings")) {
       color_warnings = true;
+    } else if (!strcmp(arg, "--no-print-directory")) {
+      // we never print the "Entering|Leaving directory" message.
     } else if (!strcmp(arg, "--no_builtin_rules")) {
       no_builtin_rules = true;
     } else if (!strcmp(arg, "--no_ninja_prelude")) {
