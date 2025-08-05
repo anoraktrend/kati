@@ -89,8 +89,12 @@ static void ReadBootstrapMakefile(const std::vector<Symbol>& targets,
     bootstrap += StringPrintf("MAKE?=make -j%d\n",
                               g_flags.num_jobs <= 1 ? 1 : g_flags.num_jobs / 2);
   } else {
-    bootstrap += StringPrintf("MAKE?=%s\n",
-                              JoinStrings(g_flags.subkati_args, " ").c_str());
+    bootstrap += StringPrintf("MAKE?=%s\n", g_flags.subkati_args[0]);
+    auto makeflags = g_flags.subkati_args;
+    if (g_flags.subkati_args.size() > 0)
+      makeflags.erase(makeflags.begin());
+    bootstrap += StringPrintf("MAKEFLAGS?=%s\n",
+                              JoinStrings(makeflags, " ").c_str());
   }
   bootstrap +=
       StringPrintf("MAKECMDGOALS?=%s\n", JoinSymbols(targets, " ").c_str());
