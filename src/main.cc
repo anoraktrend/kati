@@ -69,6 +69,7 @@ static void ReadBootstrapMakefile(const std::vector<Symbol>& targets,
        "KATI?=ckati\n"
        // Overwrite $SHELL environment variable.
        "SHELL=/bin/sh\n"
+       ".FEATURES?=else-if order-only output-sync second-expansion shortest-stem target-specific\n"
        // TODO: Add more builtin vars.
       );
 
