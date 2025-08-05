@@ -73,7 +73,7 @@ void Flags::Parse(int argc, char** argv) {
       is_syntax_check_only = true;
     } else if (!strcmp(arg, "-i")) {
       is_dry_run = true;
-    } else if (!strcmp(arg, "-s")) {
+    } else if (!strcmp(arg, "-s") || !strcmp(arg, "--silent")) {
       is_silent_mode = true;
     } else if (!strcmp(arg, "-d")) {
       enable_debug = true;
