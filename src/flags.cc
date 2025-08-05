@@ -150,6 +150,7 @@ void Flags::Parse(int argc, char** argv) {
       warn_real_no_cmds = true;
       werror_real_no_cmds = true;
     } else if (ParseCommandLineOptionWithArg("-C", argv, &i, &working_dir)) {
+      should_propagate = false;
     } else if (ParseCommandLineOptionWithArg("--dump_include_graph", argv, &i,
                                              &dump_include_graph)) {
     } else if (ParseCommandLineOptionWithArg("--dump_variable_assignment_trace",
@@ -163,6 +164,7 @@ void Flags::Parse(int argc, char** argv) {
         traced_variables_pattern.push_back(Pattern(pat));
       }
     } else if (ParseCommandLineOptionWithArg("-j", argv, &i, &num_jobs_str)) {
+      should_propagate = false;
       num_jobs = strtol(num_jobs_str, NULL, 10);
       if (num_jobs <= 0) {
         ERROR("Invalid -j flag: %s", num_jobs_str);
