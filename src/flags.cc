@@ -75,6 +75,8 @@ void Flags::Parse(int argc, char** argv) {
       is_dry_run = true;
     } else if (!strcmp(arg, "-s") || !strcmp(arg, "--silent")) {
       is_silent_mode = true;
+    } else if (!strncmp(arg, "-O", 2) || !strncmp(arg, "--output-sync", 13)) {
+      // output is almost always synced.
     } else if (!strcmp(arg, "-d")) {
       enable_debug = true;
     } else if (!strcmp(arg, "--kati_stats")) {
