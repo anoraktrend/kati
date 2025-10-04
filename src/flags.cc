@@ -76,8 +76,10 @@ void Flags::Parse(int argc, char** argv) {
         PERROR("chdir failed");
     } else if (!strcmp(arg, "-i")) {
       is_dry_run = true;
-    } else if (!strcmp(arg, "-s")) {
+    } else if (!strcmp(arg, "-s") || !strcmp(arg, "--silent")) {
       is_silent_mode = true;
+    } else if (!strncmp(arg, "-O", 2) || !strncmp(arg, "--output-sync", 13)) {
+      // output is almost always synced.
     } else if (!strcmp(arg, "-d")) {
       enable_debug = true;
     } else if (!strcmp(arg, "--kati_stats")) {
@@ -106,6 +108,8 @@ void Flags::Parse(int argc, char** argv) {
       detect_depfiles = true;
     } else if (!strcmp(arg, "--color_warnings")) {
       color_warnings = true;
+    } else if (!strcmp(arg, "--no-print-directory")) {
+      // we never print the "Entering|Leaving directory" message.
     } else if (!strcmp(arg, "--no_builtin_rules")) {
       no_builtin_rules = true;
     } else if (!strcmp(arg, "--no_ninja_prelude")) {
@@ -151,6 +155,7 @@ void Flags::Parse(int argc, char** argv) {
       warn_real_no_cmds = true;
       werror_real_no_cmds = true;
     } else if (ParseCommandLineOptionWithArg("-C", argv, &i, &working_dir)) {
+      should_propagate = false;
     } else if (ParseCommandLineOptionWithArg("--dump_include_graph", argv, &i,
                                              &dump_include_graph)) {
     } else if (ParseCommandLineOptionWithArg("--dump_variable_assignment_trace",
@@ -164,6 +169,7 @@ void Flags::Parse(int argc, char** argv) {
         traced_variables_pattern.push_back(Pattern(pat));
       }
     } else if (ParseCommandLineOptionWithArg("-j", argv, &i, &num_jobs_str)) {
+      should_propagate = false;
       num_jobs = strtol(num_jobs_str, NULL, 10);
       if (num_jobs <= 0) {
         ERROR("Invalid -j flag: %s", num_jobs_str);
@@ -180,8 +186,6 @@ void Flags::Parse(int argc, char** argv) {
                                              &ninja_dir)) {
     } else if (!strcmp(arg, "--use_find_emulator")) {
       use_find_emulator = true;
-    } else if (ParseCommandLineOptionWithArg("--goma_dir", argv, &i,
-                                             &goma_dir)) {
     } else if (ParseCommandLineOptionWithArg(
                    "--ignore_optional_include", argv, &i,
                    &ignore_optional_include_pattern)) {
@@ -197,7 +201,7 @@ void Flags::Parse(int argc, char** argv) {
     } else if (!strncmp(arg, "--include-dir=", 14)) {
       include_dirs.push_back(string(&arg[14]));
     } else if (arg[0] == '-') {
-      ERROR("Unknown flag: %s", arg);
+      WARN("Unknown flag: %s", arg);
     } else {
       if (strchr(arg, '=')) {
         cl_vars.push_back(arg);

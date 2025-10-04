@@ -178,6 +178,38 @@ int RunCommand(const std::string& shell,
   return status;
 }
 
+int RunSystem(const std::string& shell,
+              const std::string& shellflag,
+              const std::string& cmd) {
+  const char* argv[] = {NULL, NULL, NULL, NULL};
+  std::string cmd_with_shell;
+  if (shell[0] != '/' || shell.find_first_of(" $") != std::string::npos) {
+    std::string cmd_escaped = cmd;
+    EscapeShell(&cmd_escaped);
+    cmd_with_shell = shell + " " + shellflag + " \"" + cmd_escaped + "\"";
+    argv[0] = "/bin/sh";
+    argv[1] = "-c";
+    argv[2] = cmd_with_shell.c_str();
+  } else {
+    // If the shell isn't complicated, we don't need to wrap in /bin/sh
+    argv[0] = shell.c_str();
+    argv[1] = shellflag.c_str();
+    argv[2] = cmd.c_str();
+  }
+
+  extern char** environ;
+  pid_t pid = vfork();
+  if (pid == 0)
+    execve(argv[0], const_cast<char* const*>(argv), environ);
+
+  int status;
+  int result = waitpid(pid, &status, 0);
+  if (result < 0)
+    PERROR("waitpid failed");
+
+  return status;
+}
+
 std::string GetExecutablePath() {
 #if defined(__linux__)
   char mypath[PATH_MAX + 1];

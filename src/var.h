@@ -73,6 +73,9 @@ class Var : public Evaluable {
   bool SelfReferential() const { return self_referential_; }
   void SetSelfReferential() { self_referential_ = true; }
 
+  int Private() const { return symbol_scope_; }
+  void SetPrivate(int symbol_scope) { symbol_scope_ = symbol_scope; };
+
   const std::vector<std::string>& VisibilityPrefix() const {
     return visibility_prefix_;
   }
@@ -104,6 +107,8 @@ class Var : public Evaluable {
   bool deprecated_ : 1;
   bool obsolete_ : 1;
   bool self_referential_ : 1;
+
+  int symbol_scope_;
 
   const char* diagnostic_message_text() const;
 

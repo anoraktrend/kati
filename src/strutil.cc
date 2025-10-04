@@ -180,16 +180,16 @@ void Pattern::AppendSubst(std::string_view str,
   }
 
   if (MatchImpl(str)) {
-    size_t subst_percent_index = subst.find('%');
-    if (subst_percent_index == std::string::npos) {
-      out->append(subst);
-      return;
-    } else {
-      out->append(subst.substr(0, subst_percent_index));
-      out->append(str.substr(percent_index_, str.size() - pat_.size() + 1));
-      out->append(subst.substr(subst_percent_index + 1));
-      return;
+    std::string subst_str = std::string(subst);
+    std::string stem = std::string(str.substr(percent_index_, str.size() - pat_.size() + 1));
+
+    size_t subst_percent_index = std::string::npos;
+    while ((subst_percent_index = subst_str.rfind('%', subst_percent_index - 1)) != std::string::npos) {
+      subst_str.replace(subst_percent_index, 1, stem);
     }
+
+    out->append(subst_str);
+    return;
   }
   out->append(str);
 }

@@ -55,7 +55,8 @@ Var::Var(VarOrigin origin, Frame* definition, Loc loc)
       readonly_(false),
       deprecated_(false),
       obsolete_(false),
-      self_referential_(false) {}
+      self_referential_(false),
+      symbol_scope_(0) {}
 
 Var::~Var() {
   diagnostic_messages_.erase(this);
